@@ -3,11 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UESAN.SHOPPING.CORE.Core.Entities;
+using UESAN.SHOPPING.CORE.Core.Interfaces;
 using UESAN.SHOPPING.CORE.Infrastructure.Data;
 
 namespace UESAN.SHOPPING.CORE.Infrastructure.Repositories
 {
-    internal class CategoryRepository
+    public class CategoryRepository : ICategoryRepository
     {
         private readonly StoreDbContext _context;
         public CategoryRepository(StoreDbContext context)
@@ -16,7 +17,7 @@ namespace UESAN.SHOPPING.CORE.Infrastructure.Repositories
         }
         public async Task<IEnumerable<Category>> GetCategories()
         {
-            return await _context.Category.ToListAsync();
+            return await _context.Category.Where(c => c.IsActive == true).ToListAsync();
         }
         public async Task<Category> GetCategoryById(int id)
         {
