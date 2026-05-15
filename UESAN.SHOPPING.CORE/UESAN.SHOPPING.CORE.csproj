@@ -20,10 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Core\DTOs\" />
     <Folder Include="Core\Entities\" />
     <Folder Include="Core\Settings\" />
-    <Folder Include="Core\Services\" />
     <Folder Include="Infrastructure\Shared\" />
   </ItemGroup>
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using UESAN.SHOPPING.CORE.Core.DTOs;
 using UESAN.SHOPPING.CORE.Core.Entities;
 using UESAN.SHOPPING.CORE.Core.Interfaces;
 
@@ -9,21 +10,21 @@ namespace UESAN.SHOPPING.API.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly ICategoryRepository _categoryRepository;
-        public CategoryController(ICategoryRepository categoryRepository)
+        private readonly ICategoryService _categoryService;
+        public CategoryController(ICategoryService categoryService)
         {
-            _categoryRepository = categoryRepository;
+            _categoryService = categoryService;
         }
         [HttpGet]
         public async Task<IActionResult> GetCategories()
         {
-            var categories = await _categoryRepository.GetCategories();
+            var categories = await _categoryService.GetCategories();
             return Ok(categories);
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetCategoryById(int id)
         {
-            var category = await _categoryRepository.GetCategoryById(id);
+            var category = await _categoryService.GetCategoryById(id);
             if (category == null)
             {
                 return NotFound();
@@ -31,25 +32,39 @@ namespace UESAN.SHOPPING.API.Controllers
             return Ok(category);
         }
         [HttpPost]
-        public async Task<IActionResult> CreateCategory(Category category)
+        public async Task<IActionResult> CreateCategory([FromBody] CategoryCreateDTO categoryCreateDTO)
         {
-            await _categoryRepository.CreateCategory(category);
-            return CreatedAtAction(nameof(GetCategoryById), new { id = category.Id }, category);
-        }
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCategory(int id, Category category)
-        {
-            if (id != category.Id)
+            if (categoryCreateDTO == null)
             {
                 return BadRequest();
             }
-            await _categoryRepository.UpdateCategory(category);
+            await _categoryService.CreateCategory(categoryCreateDTO);
+            return Ok();
+        }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateCategory([FromBody] CategoryUpdateDTO categoryUpdateDTO)
+        {
+            if (categoryUpdateDTO == null)
+            {
+                return BadRequest();
+            }
+            var existingCategory = await _categoryService.GetCategoryById(categoryUpdateDTO.Id);
+            if (existingCategory == null)
+            {
+                return NotFound();
+            }
+            await _categoryService.UpdateCategory(categoryUpdateDTO);
             return NoContent();
         }
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategory(int id)
+        [HttpDelete]
+        public async Task<IActionResult> DeleteCategory([FromBody] CategoryDeleteDTO categoryDeleteDTO)
         {
-            await _categoryRepository.DeleteCategory(id);
+            var existingCategory = await _categoryService.GetCategoryById(categoryDeleteDTO.Id);
+            if (existingCategory == null)
+            {
+                return NotFound();
+            }
+            await _categoryService.DeleteCategory(categoryDeleteDTO);
             return NoContent();
         }
     }
